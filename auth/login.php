@@ -177,7 +177,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- Right Side: Botanical Leaves Image Banner -->
             <div class="w-1/2 relative bg-[#13251c] overflow-hidden select-none">
-                <img src="../assets/images/papercut-leaves.jpg"
+                <img src="../assets/images/papercut-leaves.png"
                      alt="Botanical papercut foliage"
                      class="w-full h-full object-cover object-left" />
                 <div class="absolute inset-0 bg-gradient-to-t from-[#13251c]/90 via-transparent to-transparent flex items-end p-10">

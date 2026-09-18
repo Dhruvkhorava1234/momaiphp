@@ -49,8 +49,9 @@ require_once __DIR__ . '/includes/sidebar.php';
 require_once __DIR__ . '/includes/topbar.php';
 ?>
 
-<div x-data="{ paymentModal: false, selectedBill: null, paymentAmount: '' }"
+<div x-data="{ paymentModal: false, selectedBill: null, paymentAmount: '', deleteModal: false, deleteBillData: null, isDeleting: false }"
      @open-payment-modal.window="selectedBill = $event.detail; paymentAmount = Number($event.detail.due_amount); paymentModal = true"
+     @open-delete-modal.window="deleteBillData = $event.detail; deleteModal = true"
      class="space-y-6">
     
     <!-- Header & Metrics -->
@@ -78,15 +79,15 @@ require_once __DIR__ . '/includes/topbar.php';
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div class="bg-white rounded-2xl p-4 border border-gray-200/80 shadow-2xs">
             <span class="text-[11px] font-medium text-gray-500 block">Total Billed Volume</span>
-            <span class="text-xl font-bold text-gray-900 font-mono"><?= format_inr($totalBilled) ?></span>
+            <span id="metric-billed" class="text-xl font-bold text-gray-900 font-mono"><?= format_inr($totalBilled) ?></span>
         </div>
         <div class="bg-white rounded-2xl p-4 border border-gray-200/80 shadow-2xs">
             <span class="text-[11px] font-medium text-emerald-600 block">Total Collected Cash</span>
-            <span class="text-xl font-bold text-emerald-800 font-mono"><?= format_inr($totalCollected) ?></span>
+            <span id="metric-collected" class="text-xl font-bold text-emerald-800 font-mono"><?= format_inr($totalCollected) ?></span>
         </div>
         <div class="bg-white rounded-2xl p-4 border border-rose-200 shadow-2xs bg-rose-50/40">
             <span class="text-[11px] font-bold text-rose-600 block">Total Customer Due (Khata)</span>
-            <span class="text-xl font-bold text-rose-700 font-mono"><?= format_inr($totalDue) ?></span>
+            <span id="metric-due" class="text-xl font-bold text-rose-700 font-mono"><?= format_inr($totalDue) ?></span>
         </div>
     </div>
 
@@ -129,7 +130,7 @@ require_once __DIR__ . '/includes/topbar.php';
                 </thead>
                 <tbody>
                     <?php foreach ($bills as $bill): ?>
-                        <tr>
+                        <tr id="bill-row-<?= $bill['id'] ?>" data-bill-id="<?= $bill['id'] ?>" class="transition-all duration-300">
                             <td class="font-mono font-bold text-gray-800">
                                 <a href="bill-slip.php?id=<?= $bill['id'] ?>" class="hover:text-[#324b3e] underline">
                                     <?= e($bill['bill_number']) ?>
@@ -197,6 +198,18 @@ require_once __DIR__ . '/includes/topbar.php';
                                             <span>+ Pay</span>
                                         </button>
                                     <?php endif; ?>
+
+                                    <!-- Animated Soft Delete Bill Button -->
+                                    <button type="button"
+                                            class="btn-delete-bill btn-delete-animated p-1.5 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white transition"
+                                            data-id="<?= $bill['id'] ?>"
+                                            data-number="<?= e($bill['bill_number']) ?>"
+                                            data-due="<?= (float)$bill['due_amount'] ?>"
+                                            title="Delete Bill (Soft Delete with animation)">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                        </svg>
+                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -261,11 +274,92 @@ require_once __DIR__ . '/includes/topbar.php';
             </form>
         </div>
     </div>
+
+    <!-- MODAL: Botanical Soft Delete Confirmation -->
+    <div x-show="deleteModal" x-cloak 
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs transition-opacity duration-300">
+        <div @click.away="if (!isDeleting) deleteModal = false"
+             x-show="deleteModal"
+             x-transition:enter="transition ease-out duration-300 transform"
+             x-transition:enter-start="opacity-0 scale-95 translate-y-4"
+             x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+             x-transition:leave="transition ease-in duration-200 transform"
+             x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+             x-transition:leave-end="opacity-0 scale-95 translate-y-4"
+             class="bg-white rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-2xl border border-gray-100 space-y-5 text-center relative overflow-hidden">
+            
+            <!-- Top Alert Badge -->
+            <div class="mx-auto w-16 h-16 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-600 shadow-inner">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+            </div>
+
+            <div>
+                <h3 class="text-lg font-bold text-gray-900 tracking-tight">
+                    Delete Bill?
+                </h3>
+                <p class="text-xs text-gray-500 mt-1.5 leading-relaxed">
+                    Are you sure you want to delete invoice <span class="font-mono font-bold text-rose-600 px-1 py-0.5 bg-rose-50 rounded" x-text="deleteBillData ? deleteBillData.number : ''"></span>?
+                </p>
+            </div>
+
+            <!-- Warning Box with Information -->
+            <div class="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200/80 text-left space-y-1.5 text-xs text-amber-900">
+                <div class="flex items-center gap-2 font-bold text-amber-800">
+                    <svg class="w-4 h-4 shrink-0 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                    <span>Automatic Adjustments:</span>
+                </div>
+                <ul class="list-disc list-inside space-y-1 text-[11px] text-amber-800/90 pl-1">
+                    <li>Product inventory items will be safely restocked.</li>
+                    <li>Customer Khata outstanding balance will be automatically adjusted.</li>
+                    <li>The record is archived via soft-delete.</li>
+                </ul>
+            </div>
+
+            <!-- Error message container if any -->
+            <div id="delete-modal-error" class="hidden p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 font-semibold"></div>
+
+            <!-- Modal Action Buttons -->
+            <div class="grid grid-cols-2 gap-3 pt-2">
+                <button type="button" 
+                        @click="deleteModal = false" 
+                        :disabled="isDeleting"
+                        class="w-full py-2.5 px-4 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold transition disabled:opacity-50">
+                    Cancel
+                </button>
+                <button type="button"
+                        id="confirm-delete-bill-btn"
+                        :disabled="isDeleting"
+                        class="w-full py-2.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-md shadow-rose-200 transition flex items-center justify-center gap-1.5 active:scale-[0.98] disabled:opacity-50">
+                    <template x-if="!isDeleting">
+                        <span class="flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                            <span>Yes, Delete</span>
+                        </span>
+                    </template>
+                    <template x-if="isDeleting">
+                        <span class="flex items-center gap-1.5">
+                            <svg class="animate-spin w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span>Deleting...</span>
+                        </span>
+                    </template>
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
     $(document).ready(function() {
-        $('#bills-table').DataTable({
+        const billsTable = $('#bills-table').DataTable({
             pageLength: 25,
             order: [[2, 'desc']],
             responsive: true,
@@ -275,10 +369,96 @@ require_once __DIR__ . '/includes/topbar.php';
             }
         });
 
+        // Pay Modal trigger
         $(document).on('click', '.btn-pay-action', function(e) {
             e.preventDefault();
             const billData = $(this).data('bill');
             window.dispatchEvent(new CustomEvent('open-payment-modal', { detail: billData }));
+        });
+
+        // Delete Modal Trigger
+        let pendingDeleteData = null;
+        $(document).on('click', '.btn-delete-bill', function(e) {
+            e.preventDefault();
+            const $btn = $(this);
+            const billId = $btn.data('id');
+            const billNumber = $btn.data('number');
+            const $tr = $btn.closest('tr');
+
+            pendingDeleteData = {
+                id: billId,
+                number: billNumber,
+                $tr: $tr
+            };
+
+            $('#delete-modal-error').addClass('hidden').text('');
+            window.dispatchEvent(new CustomEvent('open-delete-modal', { detail: { id: billId, number: billNumber } }));
+        });
+
+        // Confirm Delete Click
+        $(document).on('click', '#confirm-delete-bill-btn', function(e) {
+            e.preventDefault();
+            if (!pendingDeleteData) return;
+
+            const alpineContainer = document.querySelector('[x-data]');
+            if (alpineContainer && alpineContainer._x_dataStack) {
+                alpineContainer._x_dataStack[0].isDeleting = true;
+            }
+
+            $('#delete-modal-error').addClass('hidden').text('');
+
+            $.ajax({
+                url: 'bill-delete.php',
+                type: 'POST',
+                dataType: 'json',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                data: {
+                    bill_id: pendingDeleteData.id,
+                    csrf_token: '<?= csrf_token() ?>'
+                },
+                success: function(res) {
+                    if (res && res.success) {
+                        // Close modal
+                        if (alpineContainer && alpineContainer._x_dataStack) {
+                            alpineContainer._x_dataStack[0].isDeleting = false;
+                            alpineContainer._x_dataStack[0].deleteModal = false;
+                        }
+
+                        // Update metrics cards with new balance
+                        if (res.totals) {
+                            $('#metric-billed').text(res.totals.billed);
+                            $('#metric-collected').text(res.totals.collected);
+                            $('#metric-due').text(res.totals.due);
+                        }
+
+                        // Execute smooth row slide-out animation
+                        const $row = pendingDeleteData.$tr;
+                        $row.addClass('animating-delete');
+
+                        setTimeout(function() {
+                            billsTable.row($row).remove().draw(false);
+                            pendingDeleteData = null;
+                        }, 650);
+                    } else {
+                        if (alpineContainer && alpineContainer._x_dataStack) {
+                            alpineContainer._x_dataStack[0].isDeleting = false;
+                        }
+                        $('#delete-modal-error').removeClass('hidden').text(res.message || 'Failed to delete bill.');
+                    }
+                },
+                error: function(xhr) {
+                    if (alpineContainer && alpineContainer._x_dataStack) {
+                        alpineContainer._x_dataStack[0].isDeleting = false;
+                    }
+                    let msg = 'Failed to delete bill. Please try again.';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        msg = xhr.responseJSON.message;
+                    }
+                    $('#delete-modal-error').removeClass('hidden').text(msg);
+                }
+            });
         });
     });
 </script>

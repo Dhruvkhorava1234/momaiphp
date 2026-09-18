@@ -383,8 +383,20 @@ require_once __DIR__ . '/includes/topbar.php';
                         <!-- Payment Collection Input -->
                         <div class="pt-3 border-t border-gray-100 space-y-3">
                             <div>
-                                <label class="block font-semibold text-gray-700 mb-1">Amount Paid (₹) *</label>
-                                <input type="number" step="0.01" name="paid_amount" x-model.number="paidAmount" @input="calculateTotals()" required min="0"
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="block font-semibold text-gray-700">Amount Paid (₹) *</label>
+                                    <div class="flex gap-1.5">
+                                        <button type="button" @click="paidAmount = grandTotal; calculateTotals(false)" 
+                                            class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 transition">
+                                            Full Paid
+                                        </button>
+                                        <button type="button" @click="paidAmount = 0; calculateTotals(false)" 
+                                            class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-800 hover:bg-rose-200 transition">
+                                            Unpaid (₹0)
+                                        </button>
+                                    </div>
+                                </div>
+                                <input type="number" step="0.01" name="paid_amount" x-model.number="paidAmount" @input="calculateTotals(false)" required min="0"
                                     class="w-full px-3.5 py-2.5 rounded-xl border-2 border-emerald-500 font-mono font-black text-emerald-800 text-base outline-none bg-emerald-50/20">
                             </div>
 
@@ -532,7 +544,7 @@ require_once __DIR__ . '/includes/topbar.php';
                 this.calculateTotals();
             },
 
-            calculateTotals() {
+            calculateTotals(autoFill = true) {
                 let sub = 0;
                 this.items.forEach(i => {
                     sub += (i.quantity * i.unit_price);
@@ -540,8 +552,8 @@ require_once __DIR__ . '/includes/topbar.php';
                 this.subtotal = sub;
                 this.grandTotal = Math.max(0, sub - (this.discount || 0));
                 
-                // Default full payment if paidAmount was equal to previous grandTotal or 0
-                if (this.paidAmount === 0 || this.paidAmount > this.grandTotal) {
+                // Only auto-fill paid amount when adding new items if user hasn't explicitly set payment
+                if (autoFill && (this.paidAmount === undefined || this.paidAmount === null || this.paidAmount > this.grandTotal)) {
                     this.paidAmount = this.grandTotal;
                 }
                 this.dueAmount = Math.max(0, this.grandTotal - (this.paidAmount || 0));

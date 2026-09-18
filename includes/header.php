@@ -44,6 +44,43 @@ $pathPrefix = $pathPrefix ?? '';
         [x-cloak] { display: none !important; }
         a { text-decoration: none; }
 
+        /* Row Delete Animation */
+        @keyframes rowDeleteSlideOut {
+            0% {
+                transform: translateX(0) scaleY(1);
+                opacity: 1;
+                background-color: rgba(244, 63, 94, 0.15);
+            }
+            40% {
+                transform: translateX(-20px) scale(0.98);
+                opacity: 0.8;
+                background-color: rgba(244, 63, 94, 0.35);
+            }
+            100% {
+                transform: translateX(100%) scaleY(0);
+                opacity: 0;
+                height: 0;
+                padding-top: 0 !important;
+                padding-bottom: 0 !important;
+                margin: 0 !important;
+            }
+        }
+        .animating-delete {
+            animation: rowDeleteSlideOut 0.65s cubic-bezier(0.4, 0, 0.2, 1) forwards !important;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        /* Trash Shake Hover Animation */
+        @keyframes trashWiggle {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-12deg); }
+            75% { transform: rotate(12deg); }
+        }
+        .btn-delete-animated:hover svg {
+            animation: trashWiggle 0.3s ease-in-out infinite;
+        }
+
         /* Responsive visibility utilities (not in pre-compiled app.css) */
         @media (min-width: 1024px) {
             .lg\:hidden { display: none !important; }
