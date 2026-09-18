@@ -88,16 +88,17 @@ require_once __DIR__ . '/includes/topbar.php';
                 <span>Print Slip</span>
             </button>
 
-            <!-- WhatsApp Share Button -->
-            <a href="<?= e($waUrl) ?>"
-               target="_blank" rel="noopener noreferrer"
+            <!-- WhatsApp Share as Image Button -->
+            <button type="button"
+               id="btn-wa-share-slip"
+               onclick="shareSlipImage('printable-slip', '<?= e($bill['bill_number']) ?>', '<?= rawurlencode($bill['customer_phone'] ?? '') ?>')"
                class="px-3.5 py-2 rounded-full bg-[#25d366]/10 hover:bg-[#25d366] text-[#128c4c] hover:text-white text-xs font-semibold border border-[#25d366]/40 transition flex items-center gap-1.5 active:scale-[0.98]"
-               title="Share invoice on WhatsApp">
+               title="Share invoice image on WhatsApp">
                 <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
                 </svg>
-                <span>Share on WhatsApp</span>
-            </a>
+                <span id="btn-wa-share-slip-text">Share on WhatsApp</span>
+            </button>
 
             <a href="bill-create.php"
                 class="px-3.5 py-2 rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold border border-emerald-200 transition">
@@ -148,55 +149,46 @@ require_once __DIR__ . '/includes/topbar.php';
             <div class="grid grid-cols-12">
 
                 <!-- Left Section: NAME, ADDRESS, MO (8 cols) -->
-                <div class="col-span-8 sm:col-span-9 pr-3 py-2 border-r-2 border-[#b53127] space-y-2.5">
+                <div class="col-span-8 sm:col-span-9 pr-3 py-2 border-r-2 border-[#b53127] space-y-0">
                     <!-- NAME -->
-                    <div class="flex items-end">
-                        <span class="font-extrabold tracking-wider uppercase text-[11px] shrink-0 w-16">NAME :</span>
-                        <div class="flex-1 px-2 font-serif text-base text-gray-900 leading-tight">
-                            <?= e($bill['customer_name']) ?>
-                        </div>
+                    <div class="flex items-center border-b border-[#b53127]/30 py-1.5 min-h-[28px]">
+                        <span class="font-extrabold tracking-wider uppercase text-[11px] shrink-0 w-[72px]">NAME :</span>
+                        <span class="flex-1 px-2 font-serif text-sm text-gray-900 leading-tight truncate"><?= e($bill['customer_name']) ?></span>
                     </div>
 
                     <!-- ADDRESS -->
-                    <div class="flex items-end">
-                        <span class="font-extrabold tracking-wider uppercase text-[11px] shrink-0 w-16">ADDRESS :</span>
-                        <div class="flex-1 px-2 font-serif text-sm text-gray-800 leading-tight">
-                            <?= e($bill['customer_address'] ?: ($bill['c_address'] ?? '')) ?>
-                        </div>
+                    <div class="flex items-center border-b border-[#b53127]/30 py-1.5 min-h-[28px]">
+                        <span class="font-extrabold tracking-wider uppercase text-[11px] shrink-0 w-[72px]">ADDRESS :</span>
+                        <span class="flex-1 px-2 font-serif text-sm text-gray-800 leading-tight"><?= e($bill['customer_address'] ?: ($bill['c_address'] ?? '')) ?></span>
                     </div>
 
                     <!-- MO -->
-                    <div class="flex items-end">
-                        <span class="font-extrabold tracking-wider uppercase text-[11px] shrink-0 w-16">MO. :</span>
-                        <div class="flex-1 px-2 font-serif text-sm text-gray-800 leading-tight">
-                            <?= e($bill['customer_phone'] ?: ($bill['c_phone'] ?? '')) ?>
-                        </div>
+                    <div class="flex items-center py-1.5 min-h-[28px]">
+                        <span class="font-extrabold tracking-wider uppercase text-[11px] shrink-0 w-[72px]">MO. :</span>
+                        <span class="flex-1 px-2 font-serif text-sm text-gray-800 leading-tight"><?= e($bill['customer_phone'] ?: ($bill['c_phone'] ?? '')) ?></span>
                     </div>
                 </div>
 
-                <!-- Right Section: BILL NO, DATE (4 cols) -->
-                <div class="col-span-4 sm:col-span-3 pl-2 sm:pl-3 py-2 flex flex-col justify-between">
+                <!-- Right Section: BILL NO, DATE, TIME (4 cols) -->
+                <div class="col-span-4 sm:col-span-3 pl-2 sm:pl-3 py-2 space-y-0">
                     <!-- BILL NO -->
-                    <div class="flex items-baseline gap-2 border-[#b53127] pb-1">
-                        <span class="font-extrabold tracking-wider uppercase text-[11px] shrink-0">BILL NO. :</span>
-                        <span class="font-serif text-base font-black text-gray-900">
-                            <?= preg_replace('/[^0-9]/', '', $bill['bill_number']) ?: $bill['id'] ?>
-                        </span>
+                    <div class="flex items-center border-b border-[#b53127]/30 py-1.5 min-h-[28px]">
+                        <span class="font-extrabold tracking-wider uppercase text-[10px] shrink-0 whitespace-nowrap">BILL NO. :</span>
+                        <span class="ml-1.5 font-serif text-sm font-black text-gray-900 leading-tight"><?= preg_replace('/[^0-9]/', '', $bill['bill_number']) ?: $bill['id'] ?></span>
                     </div>
 
                     <!-- DATE -->
-                    <div class="flex items-baseline gap-2 pb-1">
-                        <span class="font-extrabold tracking-wider uppercase text-[11px] shrink-0">DATE :</span>
-                        <span class="font-serif text-sm text-gray-900">
-                            <?= date('d-m-Y', strtotime($bill['created_at'])) ?>
-                        </span>
+                    <div class="flex items-center border-b border-[#b53127]/30 py-1.5 min-h-[28px]">
+                        <span class="font-extrabold tracking-wider uppercase text-[10px] shrink-0 whitespace-nowrap">DATE :</span>
+                        <span class="ml-1.5 font-serif text-sm text-gray-900 leading-tight"><?= date('d-m-Y', strtotime($bill['created_at'])) ?></span>
                     </div>
 
                     <!-- TIME -->
-                    <div class="flex items-baseline gap-2 pt-1 text-[10px] text-[#b53127]">
-                        <span class="font-bold uppercase tracking-wider">TIME :</span>
-                        <span class="font-mono"><?= date('h:i A', strtotime($bill['created_at'])) ?></span>
+                    <div class="flex items-center py-1.5 min-h-[28px]">
+                        <span class="font-extrabold tracking-wider uppercase text-[10px] shrink-0 whitespace-nowrap">TIME :</span>
+                        <span class="ml-1.5 font-mono text-[11px] text-gray-900 leading-tight"><?= date('h:i A', strtotime($bill['created_at'])) ?></span>
                     </div>
+
                 </div>
 
             </div>
@@ -300,6 +292,8 @@ require_once __DIR__ . '/includes/topbar.php';
             </div> -->
 
             <div class="text-center pr-4">
+                <!-- Signature space -->
+                <div class="h-14"></div>
                 <div class="border-t border-[#b53127] px-6 pt-1 font-bold tracking-wider text-[11px] uppercase">
                     For, MOMAI PLYWOOD
                 </div>
@@ -385,3 +379,75 @@ require_once __DIR__ . '/includes/topbar.php';
 </div>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
+
+<script>
+/**
+ * Captures a slip element as a PNG image and shares it via
+ * the Web Share API (mobile) or downloads it (desktop fallback).
+ *
+ * @param {string} elementId   - ID of the DOM element to capture
+ * @param {string} billNumber  - Bill number for the filename
+ * @param {string} phone       - URL-encoded phone number (optional)
+ */
+async function shareSlipImage(elementId, billNumber, phone) {
+    const btn = document.getElementById('btn-wa-share-' + elementId.replace('printable-', ''));
+    const btnText = document.getElementById('btn-wa-share-' + elementId.replace('printable-', '') + '-text');
+    if (!btn) return;
+
+    const originalText = btnText ? btnText.textContent : 'Share on WhatsApp';
+    if (btnText) btnText.textContent = 'Capturing...';
+    btn.disabled = true;
+
+    try {
+        const element = document.getElementById(elementId);
+        if (!element) throw new Error('Slip element not found.');
+
+        // Capture the element as a canvas
+        const canvas = await html2canvas(element, {
+            scale: 2,              // 2× resolution for crisp image
+            useCORS: true,
+            backgroundColor: '#ffffff',
+            logging: false
+        });
+
+        // Convert canvas → Blob (PNG)
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+        const filename = 'MOMAI_PLYWOOD_' + (billNumber || 'Bill') + '.png';
+        const file = new File([blob], filename, { type: 'image/png' });
+
+        // Mobile: use Web Share API with files
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+                files: [file],
+                title: 'MOMAI PLYWOOD - Bill ' + (billNumber || ''),
+                text: 'Please find the attached invoice from MOMAI PLYWOOD.'
+            });
+        } else {
+            // Desktop fallback: download the image, then open WhatsApp
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            // Open WhatsApp chat after short delay
+            setTimeout(() => {
+                const decodedPhone = decodeURIComponent(phone || '');
+                const cleanPhone = decodedPhone.replace(/[^0-9]/g, '');
+                const waPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone;
+                const waNote = encodeURIComponent('Please find the attached invoice image from MOMAI PLYWOOD.');
+                window.open('https://wa.me/' + (waPhone || '') + '?text=' + waNote, '_blank');
+            }, 600);
+        }
+    } catch (err) {
+        if (err.name !== 'AbortError') {
+            console.error('WhatsApp share error:', err);
+            alert('Could not share the slip. Please try printing it instead.');
+        }
+    } finally {
+        if (btnText) btnText.textContent = originalText;
+        btn.disabled = false;
+    }
+}
+</script>

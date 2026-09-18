@@ -48,14 +48,66 @@ require_once __DIR__ . '/includes/topbar.php';
         </div>
         
         <div class="flex items-center gap-2">
-            <button type="button"
-                    onclick="window.print()"
-                    class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold transition active:scale-[0.98]">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
-                </svg>
-                <span>Print Report</span>
-            </button>
+            <!-- Export to Excel Dropdown -->
+            <div class="relative" x-data="{ exportOpen: false }">
+                <button type="button"
+                        @click="exportOpen = !exportOpen"
+                        @click.outside="exportOpen = false"
+                        style="background-color: #324b3e;"
+                        class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-white text-xs font-bold shadow-md transition active:scale-[0.98] hover:opacity-90">
+                    <!-- Excel icon -->
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h4a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                    </svg>
+                    <span>Export to Excel</span>
+                    <svg class="w-3 h-3 transition-transform duration-200" :class="exportOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+
+                <!-- Dropdown menu -->
+                <div x-show="exportOpen"
+                     x-cloak
+                     x-transition:enter="transition ease-out duration-150"
+                     x-transition:enter-start="opacity-0 scale-95 translate-y-1"
+                     x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                     x-transition:leave="transition ease-in duration-100"
+                     x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                     x-transition:leave-end="opacity-0 scale-95 translate-y-1"
+                     class="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-30 py-1.5">
+
+                    <div class="px-3 pt-2 pb-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Choose Export</div>
+
+                    <a href="report-export.php?type=all"
+                       class="flex items-center gap-2.5 px-3.5 py-2.5 hover:bg-emerald-50 text-xs font-bold text-emerald-800 transition">
+                        <svg class="w-4 h-4 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        Full Report (All Sheets)
+                    </a>
+
+                    <div class="border-t border-gray-100 mx-3 my-1"></div>
+
+                    <a href="report-export.php?type=pending"
+                       class="flex items-center gap-2.5 px-3.5 py-2.5 hover:bg-rose-50 text-xs text-gray-700 font-semibold transition">
+                        <span class="w-2 h-2 rounded-full bg-rose-500 shrink-0"></span>
+                        Pending Customer Bills
+                    </a>
+
+                    <a href="report-export.php?type=out_of_stock"
+                       class="flex items-center gap-2.5 px-3.5 py-2.5 hover:bg-rose-50 text-xs text-gray-700 font-semibold transition">
+                        <span class="w-2 h-2 rounded-full bg-rose-800 shrink-0"></span>
+                        Out of Stock Products
+                    </a>
+
+                    <a href="report-export.php?type=low_stock"
+                       class="flex items-center gap-2.5 px-3.5 py-2.5 hover:bg-amber-50 text-xs text-gray-700 font-semibold transition">
+                        <span class="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>
+                        Low Stock Alert Items
+                    </a>
+                </div>
+            </div>
+
         </div>
     </div>
 

@@ -40,6 +40,9 @@ $pathPrefix = $pathPrefix ?? '';
     <!-- Alpine.js (Lightweight reactive client store) -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js"></script>
 
+    <!-- html2canvas (Slip → Image capture for WhatsApp sharing) -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
     <style>
         [x-cloak] { display: none !important; }
         a { text-decoration: none; }
