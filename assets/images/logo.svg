@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+    <defs>
+        <linearGradient id="momaiGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#3b5e4d"/>
+            <stop offset="50%" stop-color="#23382f"/>
+            <stop offset="100%" stop-color="#182620"/>
+        </linearGradient>
+        <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#34d399"/>
+            <stop offset="100%" stop-color="#059669"/>
+        </linearGradient>
+    </defs>
+    <!-- Background rounded squircle -->
+    <rect width="64" height="64" rx="16" fill="url(#momaiGrad)"/>
+    <rect x="2" y="2" width="60" height="60" rx="14" fill="none" stroke="#527d66" stroke-width="1.5" stroke-opacity="0.4"/>
+
+    <!-- Stylized MOMAI Plywood Logo Emblem: Modern Architecture / Plywood Layers forming M -->
+    <path d="M16 46 V22 L25 34 L32 25 L39 34 L48 22 V46" fill="none" stroke="url(#goldGrad)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+    
+    <!-- Underline accent bar -->
+    <circle cx="32" cy="46" r="2.5" fill="#34d399"/>
+</svg>
