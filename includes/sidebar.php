@@ -80,6 +80,15 @@ $pathPrefix = $pathPrefix ?? '';
                 <span>Bills & History</span>
             </a>
 
+            <!-- Return Bills (Sales Returns) -->
+            <a href="<?= $pathPrefix ?>bill-returns.php"
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all <?= in_array($currentPage, ['bill-returns.php', 'return-slip.php']) ? 'bg-[#edf4f7] text-[#23382f] font-bold shadow-md' : 'text-gray-300 hover:bg-[#2e473d] hover:text-white' ?>">
+                <svg class="w-4 h-4 <?= in_array($currentPage, ['bill-returns.php', 'return-slip.php']) ? 'text-[#23382f]' : 'text-emerald-300' ?>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                </svg>
+                <span>Return Bills</span>
+            </a>
+
             <!-- Inventory & Products -->
             <a href="<?= $pathPrefix ?>products.php"
                class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all <?= ($currentPage === 'products.php') ? 'bg-[#edf4f7] text-[#23382f] font-bold shadow-md' : 'text-gray-300 hover:bg-[#2e473d] hover:text-white' ?>">

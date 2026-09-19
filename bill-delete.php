@@ -42,9 +42,10 @@ try {
     $items = $itemStmt->fetchAll();
 
     foreach ($items as $item) {
-        if (!empty($item['product_id'])) {
+        $remainingQty = max(0, (int) $item['quantity'] - (int) ($item['returned_quantity'] ?? 0));
+        if (!empty($item['product_id']) && $remainingQty > 0) {
             $pdo->prepare("UPDATE products SET stock_quantity = stock_quantity + ?, updated_at = NOW() WHERE id = ?")
-                ->execute([(int)$item['quantity'], (int)$item['product_id']]);
+                ->execute([$remainingQty, (int) $item['product_id']]);
         }
         // Soft delete the bill item
         $pdo->prepare("UPDATE bill_items SET deleted_at = NOW() WHERE id = ?")

@@ -155,19 +155,21 @@ require_once __DIR__ . '/includes/topbar.php';
                                 <?= format_inr((float)$bill['due_amount']) ?>
                             </td>
                             <td class="text-center">
-                                <?php if ($bill['payment_status'] === 'paid'): ?>
-                                    <span class="inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                                        Paid
-                                    </span>
-                                <?php elseif ($bill['payment_status'] === 'partial'): ?>
-                                    <span class="inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-200">
-                                        Partial Due
-                                    </span>
-                                <?php else: ?>
-                                    <span class="inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-200">
-                                        Unpaid
-                                    </span>
-                                <?php endif; ?>
+                                <div class="flex flex-col items-center gap-1">
+                                    <?php if ($bill['payment_status'] === 'paid'): ?>
+                                        <span class="inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                            Paid
+                                        </span>
+                                    <?php elseif ($bill['payment_status'] === 'partial'): ?>
+                                        <span class="inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-200">
+                                            Partial Due
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-200">
+                                            Unpaid
+                                        </span>
+                                    <?php endif; ?>
+                                </div>
                             </td>
                             <td class="text-center">
                                 <div class="flex items-center justify-center gap-1.5">

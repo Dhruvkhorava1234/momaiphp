@@ -89,6 +89,26 @@ $pathPrefix = $pathPrefix ?? '';
             .lg\:hidden { display: none !important; }
         }
 
+        /* Text wrapping & flex utilities missing from pre-compiled app.css */
+        .break-words {
+            overflow-wrap: anywhere !important;
+            word-break: break-word !important;
+        }
+        .break-all {
+            word-break: break-all !important;
+        }
+        .min-w-0 {
+            min-width: 0 !important;
+        }
+        .shrink-0 {
+            flex-shrink: 0 !important;
+        }
+        .truncate {
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            white-space: nowrap !important;
+        }
+
         ::selection {
             background-color: #1F4225 !important;
             color: #ffffff !important;
@@ -255,10 +275,12 @@ $pathPrefix = $pathPrefix ?? '';
                 visibility: hidden;
             }
             #printable-slip, #printable-slip *,
+            #printable-return-slip, #printable-return-slip *,
             #printable-due-slip, #printable-due-slip * {
                 visibility: visible;
             }
-            #printable-slip {
+            #printable-slip,
+            #printable-return-slip {
                 position: absolute;
                 left: 0;
                 top: 0;
@@ -267,6 +289,8 @@ $pathPrefix = $pathPrefix ?? '';
                 padding: 0 !important;
                 box-shadow: none !important;
                 border: none !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
             #printable-due-slip {
                 position: absolute;

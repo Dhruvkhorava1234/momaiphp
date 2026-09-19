@@ -98,6 +98,7 @@ CREATE TABLE IF NOT EXISTS `bill_items` (
   `product_name` varchar(255) NOT NULL,
   `unit_price` decimal(12,2) NOT NULL,
   `quantity` int(11) NOT NULL,
+  `returned_quantity` int(11) NOT NULL DEFAULT 0,
   `total_price` decimal(12,2) NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -107,6 +108,29 @@ CREATE TABLE IF NOT EXISTS `bill_items` (
   KEY `bill_items_product_id_foreign` (`product_id`),
   CONSTRAINT `bill_items_bill_id_foreign` FOREIGN KEY (`bill_id`) REFERENCES `bills` (`id`) ON DELETE CASCADE,
   CONSTRAINT `bill_items_product_id_foreign` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+-- Table: bill_returns
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `bill_returns` (
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `bill_id` bigint(20) UNSIGNED NOT NULL,
+  `bill_item_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `product_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `product_name` varchar(255) NOT NULL,
+  `unit_price` decimal(12,2) NOT NULL,
+  `quantity` int(11) NOT NULL,
+  `total_refund` decimal(12,2) NOT NULL,
+  `refund_type` enum('due_deduct','cash_refund') NOT NULL DEFAULT 'due_deduct',
+  `reason` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `bill_returns_bill_id_foreign` (`bill_id`),
+  KEY `bill_returns_bill_item_id_foreign` (`bill_item_id`),
+  CONSTRAINT `bill_returns_bill_id_foreign` FOREIGN KEY (`bill_id`) REFERENCES `bills` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `bill_returns_bill_item_id_foreign` FOREIGN KEY (`bill_item_id`) REFERENCES `bill_items` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
