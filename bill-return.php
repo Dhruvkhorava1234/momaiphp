@@ -114,23 +114,9 @@ try {
         throw new Exception("Please specify at least 1 item quantity to return.");
     }
 
-    // 4. Recalculate bill financial balance
-    // Re-fetch all active items to compute new active subtotal
-    $reItemsStmt = $pdo->prepare("SELECT * FROM bill_items WHERE bill_id = ? AND deleted_at IS NULL");
-    $reItemsStmt->execute([$billId]);
-    $updatedItems = $reItemsStmt->fetchAll();
-
-    $newSubtotal = 0.0;
-    foreach ($updatedItems as $ui) {
-        $activeQty = max(0, (int) $ui['quantity'] - (int) ($ui['returned_quantity'] ?? 0));
-        $newSubtotal += round($activeQty * (float) $ui['unit_price'], 2);
-    }
-
+    // 4. Adjust bill balance only — original grand_total / subtotal are NEVER changed.
+    // The original invoice amount must remain intact; only track payment balance.
     $discount = (float) $bill['discount'];
-    if ($discount > $newSubtotal) {
-        $discount = $newSubtotal;
-    }
-    $newGrandTotal = max(0, $newSubtotal - $discount);
 
     $currentPaid = (float) $bill['paid_amount'];
     $currentDue = (float) $bill['due_amount'];
@@ -181,16 +167,14 @@ try {
         $newStatus = 'unpaid';
     }
 
-    // 5. Update Bill with new totals
+    // 5. Update Bill — preserve original subtotal, discount, grand_total.
+    //    Only paid_amount, due_amount and payment_status are adjusted for balance tracking.
     $updBill = $pdo->prepare("
         UPDATE bills 
-        SET subtotal = ?, discount = ?, grand_total = ?, paid_amount = ?, due_amount = ?, payment_status = ?, updated_at = NOW() 
+        SET paid_amount = ?, due_amount = ?, payment_status = ?, updated_at = NOW() 
         WHERE id = ?
     ");
     $updBill->execute([
-        $newSubtotal,
-        $discount,
-        $newGrandTotal,
         $newPaid,
         $newDue,
         $newStatus,

@@ -61,7 +61,7 @@ foreach ($items as $it) {
 }
 $canReturnAny = count($returnableItems) > 0;
 
-// Amount in words
+// Amount in words (Strictly Original Full Bill Total - Untouched by returns)
 $originalSubtotal = 0.0;
 foreach ($items as $it) {
     $originalSubtotal += (int) $it['quantity'] * (float) $it['unit_price'];
@@ -86,23 +86,13 @@ $waMessage .= "👤 Customer: {$bill['customer_name']}\n";
 $waMessage .= "📅 Date: " . date('d-m-Y', strtotime($bill['created_at'])) . "\n";
 $waMessage .= "━━━━━━━━━━━━━━━━━━━━━\n";
 foreach ($items as $item) {
-    $activeQty = (int) $item['quantity'] - (int) ($item['returned_quantity'] ?? 0);
-    if ($activeQty > 0 || (int) $item['quantity'] === 0) {
-        $itemLine = "  • {$item['product_name']}";
-        if ((int) ($item['returned_quantity'] ?? 0) > 0) {
-            $itemLine .= " (Net: {$activeQty}, Ret: {$item['returned_quantity']})";
-        } else {
-            $itemLine .= " x{$item['quantity']}";
-        }
-        $itemLine .= " @ ₹" . number_format((float) $item['unit_price'], 2) . " = ₹" . number_format($activeQty * (float) $item['unit_price'], 2) . "\n";
-        $waMessage .= $itemLine;
-    }
+    $waMessage .= "  • {$item['product_name']} x{$item['quantity']} @ ₹" . number_format((float) $item['unit_price'], 2) . " = ₹" . number_format((int) $item['quantity'] * (float) $item['unit_price'], 2) . "\n";
 }
-if ($totalReturnedAmount > 0) {
-    $waMessage .= "🔄 *Returned Goods*: -₹" . number_format($totalReturnedAmount, 2) . "\n";
+if ($originalDiscount > 0) {
+    $waMessage .= "🏷️ Discount: -₹" . number_format($originalDiscount, 2) . "\n";
 }
 $waMessage .= "━━━━━━━━━━━━━━━━━━━━━\n";
-$waMessage .= "💰 Grand Total: *₹" . number_format((float) $bill['grand_total'], 2) . "*\n";
+$waMessage .= "💰 Total: *₹" . number_format($originalGrandTotal, 2) . "*\n";
 $waMessage .= "✔️ Amount Paid: ₹" . number_format((float) $bill['paid_amount'], 2) . "\n";
 $waMessage .= $waDueNote . "\n";
 $waMessage .= "━━━━━━━━━━━━━━━━━━━━━\n";
@@ -408,7 +398,7 @@ require_once __DIR__ . '/includes/topbar.php';
                         <?php endfor; ?>
                     </tbody>
 
-                    <!-- Totals & In-Words Footer -->
+                    <!-- Totals & In-Words Footer (Original Full Bill Values) -->
                     <tfoot>
                         <tr class="border-t-2 border-[#b53127] text-xs">
                             <td colspan="3" class="px-3 py-2 border-r-2 border-[#b53127] align-top">
@@ -435,22 +425,6 @@ require_once __DIR__ . '/includes/topbar.php';
                                 </div>
                             </td>
                         </tr>
-
-                        <?php if ((float) $bill['due_amount'] > 0): ?>
-                            <tr class="border-t border-[#b53127]/40 text-xs">
-                                <td colspan="3" class="px-3 py-1 border-r-2 border-[#b53127] text-gray-500 italic text-[11px]">
-                                    Payment Status: Partial Due (Paid: ₹<?= number_format((float) $bill['paid_amount'], 2) ?>)
-                                </td>
-                                <td colspan="2" class="px-3 py-1 text-right align-middle">
-                                    <div class="font-extrabold text-[10px] text-rose-700 uppercase tracking-wider">
-                                        BALANCE DUE
-                                    </div>
-                                    <div class="font-mono font-bold text-sm text-rose-700 leading-tight mt-0.5">
-                                        ₹<?= number_format((float) $bill['due_amount'], 2) ?>
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php endif; ?>
                     </tfoot>
                 </table>
             </div>

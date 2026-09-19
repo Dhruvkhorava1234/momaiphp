@@ -175,7 +175,7 @@ require_once __DIR__ . '/includes/topbar.php';
                                 <div class="flex items-center justify-center gap-1.5">
                                     <!-- Print Slip Button -->
                                     <a href="bill-slip.php?id=<?= $bill['id'] ?>"
-                                       class="p-1.5 rounded-lg bg-gray-100 text-gray-700 hover:bg-[#324b3e] hover:text-white transition"
+                                       class="btn-action-view p-1.5 rounded-lg bg-gray-100 text-gray-700 hover:bg-[#324b3e] hover:text-white transition"
                                        title="View Official Bill">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -185,7 +185,7 @@ require_once __DIR__ . '/includes/topbar.php';
 
                                     <!-- Due Slip Icon -->
                                     <a href="bill-due-slip.php?id=<?= $bill['id'] ?>"
-                                       class="p-1.5 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-600 hover:text-white transition"
+                                       class="btn-action-due p-1.5 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-600 hover:text-white transition"
                                        title="View Due / Khata Slip">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>

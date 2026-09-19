@@ -75,9 +75,18 @@ if ($returnId > 0) {
     $mainReturn['customer_name'] = $bill['customer_name'];
     $mainReturn['customer_phone'] = $bill['customer_phone'];
     $mainReturn['customer_address'] = $bill['customer_address'];
+    $mainReturn['original_grand_total'] = $bill['grand_total'];
+    $mainReturn['bill_due_amount'] = $bill['due_amount'];
     $mainReturn['c_phone'] = $bill['c_phone'];
     $mainReturn['c_address'] = $bill['c_address'];
 }
+
+// Fetch current parent bill state if not already set
+$parentBillStmt = $pdo->prepare("SELECT grand_total, due_amount, paid_amount FROM bills WHERE id = ?");
+$parentBillStmt->execute([$billId]);
+$parentBillData = $parentBillStmt->fetch();
+$parentBillGrandTotal = (float) ($parentBillData['grand_total'] ?? 0);
+$parentBillDue = (float) ($parentBillData['due_amount'] ?? 0);
 
 // Calculate totals
 $totalRefundAmount = 0.0;
@@ -104,7 +113,7 @@ $customerName = $mainReturn['customer_name'] ?: 'Cash Customer';
 $customerPhone = $mainReturn['customer_phone'] ?: ($mainReturn['c_phone'] ?? '');
 $customerAddress = $mainReturn['customer_address'] ?: ($mainReturn['c_address'] ?? '');
 $originalBillNo = $mainReturn['bill_number'];
-$returnDate = $mainReturn['created_at'];
+$returnDate = !empty($mainReturn['created_at']) ? $mainReturn['created_at'] : (!empty($mainReturn['bill_date']) ? $mainReturn['bill_date'] : date('Y-m-d H:i:s'));
 
 // Formatted Return Number (e.g., RET-2609160513)
 $returnNumber = 'RET-' . (preg_replace('/[^0-9]/', '', $originalBillNo) ?: $mainReturn['id']);
@@ -218,10 +227,10 @@ require_once __DIR__ . '/includes/topbar.php';
             class="relative mx-auto bg-white border-2 border-[#b53127] rounded-sm p-4 sm:p-7 shadow-lg font-sans text-[#b53127] select-none"
             style="width: 100%; max-width: 800px; min-width: 720px; box-sizing: border-box;">
 
-            <!-- Header: MOMAI PLYWOOD & Centered RETURN Stamp -->
+            <!-- Header: MOMAI PLYWOOD & Right-aligned RETURN Stamp -->
             <table style="width: 100%; border-collapse: collapse; margin-bottom: 4px; border: none;">
                 <tr>
-                    <td style="width: 35%; vertical-align: top; text-align: left; padding: 0; border: none;">
+                    <td style="width: 40%; vertical-align: top; text-align: left; padding: 0; border: none;">
                         <div class="text-2xl sm:text-3xl font-extrabold tracking-widest uppercase leading-none font-serif whitespace-nowrap"
                             style="color:#b53127;">
                             MOMAI
@@ -231,69 +240,53 @@ require_once __DIR__ . '/includes/topbar.php';
                             PLYWOOD
                         </div>
                     </td>
-                    <td style="width: 30%; vertical-align: top; text-align: center; padding: 2px 0 0 0; border: none;">
-                        <div id="return-badge-box"
-                            style="display: inline-block; padding: 6px 24px 7px 24px; border: 2px solid #b53127; border-radius: 2px; font-family: serif; font-weight: 900; font-size: 15px; letter-spacing: 0.25em; text-transform: uppercase; color: #b53127; background-color: #ffffff; line-height: 1.4; overflow: visible; box-sizing: border-box; white-space: nowrap;">
-                            RETURN
-                        </div>
+                    <td style="width: 20%; vertical-align: top; text-align: center; padding: 0; border: none;">
                     </td>
-                    <td style="width: 35%; vertical-align: top; text-align: right; padding: 0; border: none;">
+                    <td style="width: 40%; vertical-align: top; text-align: right; padding: 2px 0 0 0; border: none;">
                     </td>
                 </tr>
             </table>
 
             <!-- Customer & Return Info Grid Box -->
             <div class="border-t-2 border-b-2 border-[#b53127] my-2 text-xs">
-                <div class="flex flex-row">
+                <div class="py-2 space-y-0">
 
-                    <!-- Left Section: NAME, ADDRESS, MO -->
-                    <div class="flex-1 pr-3 py-2 border-r-2 border-[#b53127] space-y-0 min-w-0">
-                        <!-- NAME -->
-                        <div class="flex items-start py-1 min-h-[26px]">
-                            <span class="font-extrabold tracking-wider uppercase text-[11px] shrink-0 w-[75px]">NAME :</span>
-                            <span class="flex-1 px-2 font-serif text-sm text-gray-900 leading-tight break-words"
-                                style="overflow-wrap: anywhere; word-break: break-word;"><?= e($customerName) ?></span>
-                        </div>
-
-                        <!-- ADDRESS -->
-                        <div class="flex items-start py-1 min-h-[26px]">
-                            <span class="font-extrabold tracking-wider uppercase text-[11px] shrink-0 w-[75px]">ADDRESS :</span>
-                            <span class="flex-1 px-2 font-serif text-sm text-gray-800 leading-tight break-words"
-                                style="overflow-wrap: anywhere; word-break: break-word;"><?= e($customerAddress) ?></span>
-                        </div>
-
-                        <!-- MO -->
-                        <div class="flex items-center py-1 min-h-[26px]">
-                            <span class="font-extrabold tracking-wider uppercase text-[11px] shrink-0 w-[75px]">MO. :</span>
-                            <span class="flex-1 px-2 font-serif text-sm text-gray-800 leading-tight"><?= e($customerPhone) ?></span>
-                        </div>
+                    <!-- NAME -->
+                    <div class="flex items-start py-1 min-h-[26px]">
+                        <span class="font-extrabold tracking-wider uppercase text-[11px] shrink-0 w-[90px]">NAME :</span>
+                        <span class="flex-1 px-2 font-serif text-sm text-gray-900 leading-tight break-words"
+                            style="overflow-wrap: anywhere; word-break: break-word;"><?= e($customerName) ?></span>
                     </div>
 
-                    <!-- Right Section: RETURN NO, DATE, TIME, ORIG BILL (Fixed 292px width matching table columns) -->
-                    <div class="pl-3 py-2 space-y-0" style="width: 292px; flex-shrink: 0;">
-                        <!-- RETURN NO -->
-                        <div class="flex items-center py-1 min-h-[26px]">
-                            <span class="font-extrabold tracking-wider uppercase text-[10px] shrink-0 w-[85px]">RETURN NO. :</span>
-                            <span class="ml-1 font-serif text-sm font-black text-gray-900 leading-tight"><?= e($returnNumber) ?></span>
-                        </div>
+                    <!-- ADDRESS -->
+                    <div class="flex items-start py-1 min-h-[26px]">
+                        <span class="font-extrabold tracking-wider uppercase text-[11px] shrink-0 w-[90px]">ADDRESS :</span>
+                        <span class="flex-1 px-2 font-serif text-sm text-gray-800 leading-tight break-words"
+                            style="overflow-wrap: anywhere; word-break: break-word;"><?= e($customerAddress) ?></span>
+                    </div>
 
-                        <!-- DATE -->
-                        <div class="flex items-center py-1 min-h-[26px]">
-                            <span class="font-extrabold tracking-wider uppercase text-[10px] shrink-0 w-[85px]">DATE :</span>
-                            <span class="ml-1 font-serif text-sm text-gray-900 leading-tight"><?= date('d-m-Y', strtotime($returnDate)) ?></span>
-                        </div>
+                    <!-- MO -->
+                    <div class="flex items-center py-1 min-h-[26px]">
+                        <span class="font-extrabold tracking-wider uppercase text-[11px] shrink-0 w-[90px]">MO. :</span>
+                        <span class="flex-1 px-2 font-serif text-sm text-gray-800 leading-tight"><?= e($customerPhone) ?></span>
+                    </div>
 
-                        <!-- TIME -->
-                        <div class="flex items-center py-1 min-h-[26px]">
-                            <span class="font-extrabold tracking-wider uppercase text-[10px] shrink-0 w-[85px]">TIME :</span>
-                            <span class="ml-1 font-mono text-[11px] text-gray-900 leading-tight"><?= date('h:i A', strtotime($returnDate)) ?></span>
-                        </div>
+                    <!-- RETURN NO -->
+                    <div class="flex items-center py-1 min-h-[26px]">
+                        <span class="font-extrabold tracking-wider uppercase text-[11px] shrink-0 w-[90px]">RETURN NO. :</span>
+                        <span class="ml-2 font-serif text-sm font-black text-gray-900 leading-tight"><?= e($returnNumber) ?></span>
+                    </div>
 
-                        <!-- ORIG BILL -->
-                        <div class="flex items-center py-1 min-h-[24px]">
-                            <span class="font-extrabold tracking-wider uppercase text-[10px] shrink-0 w-[85px]">ORIG. BILL :</span>
-                            <span class="ml-1 font-mono text-[11px] font-bold text-[#b53127] leading-tight">#<?= e($originalBillNo) ?></span>
-                        </div>
+                    <!-- DATE -->
+                    <div class="flex items-center py-1 min-h-[26px]">
+                        <span class="font-extrabold tracking-wider uppercase text-[11px] shrink-0 w-[90px]">DATE :</span>
+                        <span class="ml-2 font-serif text-sm text-gray-900 leading-tight"><?= date('d-m-Y', strtotime($returnDate)) ?></span>
+                    </div>
+
+                    <!-- ORIG BILL -->
+                    <div class="flex items-center py-1 min-h-[26px]">
+                        <span class="font-extrabold tracking-wider uppercase text-[11px] shrink-0 w-[90px]">ORIG. BILL :</span>
+                        <span class="ml-2 font-mono text-sm font-bold text-[#b53127] leading-tight">#<?= e($originalBillNo) ?></span>
                     </div>
 
                 </div>
@@ -358,6 +351,9 @@ require_once __DIR__ . '/includes/topbar.php';
                     <tfoot>
                         <tr class="border-t-2 border-[#b53127] text-xs">
                             <td colspan="3" class="px-3 py-2 border-r-2 border-[#b53127] align-top">
+                                <div class="text-[13px] font-extrabold uppercase tracking-widest text-[#b53127] mb-1 font-serif">
+                                    RETURN
+                                </div>
                                 <div class="text-[10px] font-extrabold uppercase tracking-wider text-[#b53127]">
                                     RUPEES IN WORDS:
                                 </div>
@@ -366,10 +362,11 @@ require_once __DIR__ . '/includes/topbar.php';
                                     <?= e($amountInWords) ?>
                                 </div>
 
-                                <!-- <div class="mt-2 p-1.5 rounded bg-rose-50 border border-rose-200 text-[10px] text-rose-900 font-sans space-y-0.5">
-                                    <div><span class="font-bold">Settlement Mode:</span> <?= e($settlementMode) ?></div>
-                                    <div><span class="font-bold">Reason / Note:</span> <?= e($reasonsSummary) ?></div>
-                                </div> -->
+                                <div class="mt-2 text-[11px] text-[#b53127] font-semibold flex flex-wrap items-center gap-2">
+                                    <span class="px-1.5 py-0.5 rounded bg-amber-50 border border-amber-200">
+                                        Ref Original Bill: #<?= e($originalBillNo) ?>
+                                    </span>
+                                </div>
                             </td>
                             <td colspan="2" class="px-3 py-2 text-right align-middle">
                                 <div class="text-[11px] font-extrabold uppercase tracking-wider text-[#b53127]">

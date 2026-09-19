@@ -84,6 +84,38 @@ $pathPrefix = $pathPrefix ?? '';
             animation: trashWiggle 0.3s ease-in-out infinite;
         }
 
+        /* Action Buttons Hover Effects (Fix for missing pre-compiled hover backgrounds) */
+        .hover\:bg-\[\#324b3e\]:hover,
+        .btn-action-view:hover {
+            background-color: #324b3e !important;
+            color: #ffffff !important;
+        }
+        .hover\:bg-amber-600:hover,
+        .btn-action-due:hover {
+            background-color: #d97706 !important;
+            color: #ffffff !important;
+        }
+        .hover\:bg-emerald-600:hover,
+        .btn-pay-action:hover {
+            background-color: #059669 !important;
+            color: #ffffff !important;
+        }
+        .hover\:bg-rose-600:hover,
+        .btn-delete-bill:hover {
+            background-color: #e11d48 !important;
+            color: #ffffff !important;
+        }
+        .hover\:bg-\[\#b53127\]:hover,
+        .btn-return-action:hover {
+            background-color: #b53127 !important;
+            color: #ffffff !important;
+            border-color: #b53127 !important;
+        }
+        .hover\:bg-\[\#25d366\]:hover {
+            background-color: #25d366 !important;
+            color: #ffffff !important;
+        }
+
         /* Responsive visibility utilities (not in pre-compiled app.css) */
         @media (min-width: 1024px) {
             .lg\:hidden { display: none !important; }

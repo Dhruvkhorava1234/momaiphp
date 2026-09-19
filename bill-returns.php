@@ -314,9 +314,9 @@ require_once __DIR__ . '/includes/topbar.php';
                                     <div class="inline-flex items-center gap-1.5">
                                         <!-- Open Dedicated Return Bill Slip -->
                                         <a href="return-slip.php?id=<?= $ret['id'] ?>"
-                                           class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-[#b53127] hover:text-white text-[#b53127] border border-rose-200 text-[11px] font-bold transition shadow-2xs"
+                                           class="btn-return-action inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-bold whitespace-nowrap transition shadow-2xs"
                                            title="Open Dedicated Return Bill Slip">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                             </svg>
                                             <span>Return Slip</span>
@@ -448,8 +448,28 @@ require_once __DIR__ . '/includes/topbar.php';
         </div>
     </div>
 
-    <!-- Custom Scrollbar Style for Modal -->
+    <!-- Custom Styles -->
     <style>
+        /* Return Slip Action Button Styling */
+        .btn-return-action {
+            background-color: #fff1f2;
+            color: #b53127 !important;
+            border: 1px solid #fecdd3;
+        }
+        .btn-return-action svg {
+            color: #b53127;
+            transition: color 0.15s ease;
+        }
+        .btn-return-action:hover {
+            background-color: #b53127 !important;
+            color: #ffffff !important;
+            border-color: #b53127 !important;
+            box-shadow: 0 2px 6px rgba(181, 49, 39, 0.3);
+        }
+        .btn-return-action:hover svg {
+            color: #ffffff;
+        }
+
         .bill-modal-scroll::-webkit-scrollbar {
             width: 8px;
         }
